@@ -11,17 +11,20 @@ from api.models import db
 from api.routes import api
 from api.admin import setup_admin
 from flask_jwt_extended import JWTManager
-
+# import flask_praetorian
 #from models import Person
 
 ENV = os.getenv("FLASK_ENV")
 static_file_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../public/')
 app = Flask(__name__)
 app.url_map.strict_slashes = False
+# guard = flask_praetorian.Praetorian()
 
 
 # Setup the Flask-JWT-Extended extension
-app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
+app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_SECRET')  # Change this!
+app.config['JWT_ACCESS_LIFESPAN'] = {'hours': 24}
+app.config['JWT_REFRESH_LIFESPAN'] = {'days': 30}
 jwt = JWTManager(app)
 
 # database condiguration
