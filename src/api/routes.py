@@ -8,6 +8,7 @@ from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import exc
 
 api = Blueprint('api', __name__)
 
@@ -20,49 +21,58 @@ def handle_hello():
     }
     return jsonify(response_body), 200
 
-@api.route('/users', methods=['POST'])
+@api.route('/signup', methods=['POST'])
 def create_user():
     email = request.json.get('email', None)
     password = request.json.get('password', None)
+    roles = request.json.get('roles', None)
     password_hash = generate_password_hash(password)
 
     user = User(
         email = email,
         password = password_hash,
-        is_active = False
+        roles = roles, 
+        is_active = True
     )
+    # user.create_user()
+    try:
+        user.create_user()
+    except exc.IntegrityError: 
+        return {"error":"something went wrong"}, 409
 
-    user.create_user()
+    create_user = User.lookup(email)
+    access_token = create_access_token(identity=create_user.serialize())
 
-    return jsonify(user.serialize())
+    # return jsonify(user.serialize())
+    return jsonify({'token' : access_token}), 200
+
 
 
     # Create a route to authenticate your users and return JWTs. The
     # create_access_token() function is used to actually generate the JWT.
 @api.route("/login", methods=["POST", "GET"])
 def login():
-
     # 1. read mail & pass
     email = request.json.get("email", None)
     password = request.json.get("password", None)
-    password_hash = generate_password_hash(password)
+    # password_hash = generate_password_hash(password) # deleted #
     user = User.lookup(email)
 
     # 2 check error
-    # if email != "test" or password != "test":
-    #     return jsonify({"msg": "Bad email or password"}), 401
-    if check_password_hash(user.password, password_hash):
+    if user and check_password_hash(user.password, password):
 
     # 3. return token
         access_token = create_access_token(identity=email)
-        success_login = {
-            'token' : access_token
-        }
-        return jsonify(success_login)
+        return jsonify({'token' : access_token}), 200
     else:
         return {'error': 'user and pass not valid'}, 400
 
-
+@api.route('/refresh', methods=['POST'])
+def refresh():
+    print("refresh request")
+    old_token = request.get_data()
+    new_token = guard.refresh_jwt_token(old_token)
+    return {'access_token': new_token}, 200
 
 # Protect a route with jwt_required, which will kick out requests
 # without a valid JWT present.
