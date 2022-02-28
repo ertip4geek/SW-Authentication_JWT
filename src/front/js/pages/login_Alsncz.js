@@ -37,7 +37,7 @@ export const Login = () => {
       })
       .then((data) => {
         console.log("from backend", data);
-        sessionStorage.setItem("token", data.access_token);
+        sessionStorage.setItem("token", data.token);
       })
       .catch((error) => {
         console.error("There is an error!!", error);

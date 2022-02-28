@@ -1,65 +1,82 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Context } from "../store/appContext";
+import { useHistory } from "react-router-dom";
 
 export const Login = () => {
   const { store, actions } = useContext(Context);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  let history = useHistory();
 
-  // const getUser = (e) => {
-  //   setEmail(e.target.value);
-  // };
-  // const getPassword = (e) => {
-  //   setPassword(e.target.value);
-  // };
-  // const master = () => {
-  //   console.log("hola");
-  //   console.log(email, password);
-  // };
-  const master = () => {
-    console.log("hola");
-    console.log(email, password);
-    const click = {
-      method: "POST",
-      body: JSON.stringify({
-        email: email,
-        password: "test",
-      }),
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      actions.setToken(localStorage.getItem("token"));
+      history.push("/");
+    }
+  }, []);
+
+  const onSubmitClick = (e) => {
+    e.preventDefault();
+    console.log("You pressed login");
+    let opts = {
+      email: email,
+      password: password,
     };
+    console.log(opts);
     fetch(
       "https://3001-ertip4geek-swauthenticat-5z0owhl85dg.ws-eu34xl.gitpod.io/api/login",
-      click,
-      { mode: "no-cors" }
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(opts),
+      }
     )
-      .then((resp) => {
-        if (resp.status === 200) return resp.json();
-        else alert("There is an error");
-      })
-      .then((data) => {
-        console.log("from backend", data);
-        sessionStorage.setItem("token", data.access_token);
-      })
-      .catch((error) => {
-        console.error("There is an error!!", error);
+      .then((r) => r.json())
+      .then((token) => {
+        if (token.token) {
+          localStorage.setItem("token", token.token);
+          actions.setToken(token.token);
+          history.push("/");
+        } else {
+          console.log("Please type in correct email/password");
+        }
       });
   };
 
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+  };
+
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+  };
+
   return (
-    <>
-      <h1>Login</h1>
-      <input
-        type="text"
-        placeholder="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      ></input>
-      <input
-        type="text"
-        placeholder="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      ></input>
-      <button onClick={master}>Submit</button>
-    </>
+    <div>
+      <h2>Login</h2>
+      <form action="#">
+        <div>
+          <input
+            type="text"
+            placeholder="Email"
+            onChange={handleEmailChange}
+            value={email}
+          />
+        </div>
+        <div>
+          <input
+            type="password"
+            placeholder="Password"
+            onChange={handlePasswordChange}
+            value={password}
+          />
+        </div>
+        <button onClick={onSubmitClick} type="submit">
+          Login Now
+        </button>
+      </form>
+    </div>
   );
 };

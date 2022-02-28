@@ -14,23 +14,50 @@ const getState = ({ getStore, getActions, setStore }) => {
           initial: "white",
         },
       ],
+      api: "https://3000-ertip4geek-swauthenticat-5z0owhl85dg.ws-eu34xl.gitpod.io/login",
     },
     actions: {
       // // Use getActions to call a function within a fuction
       // exampleFunction: () => {
       // 	getActions().changeColor(0, "green");
       // },
+      login: (email, password) => {
+        const store = getStore();
+        fetch(`${store.api}/api/login`, {
+          method: "POST",
+          body: JSON.stringify({
+            email: email,
+            password: password,
+          }),
+          headers: {
+            "Content-type": "application/json",
+          },
+        })
+          .then((resp) => {
+            if (resp.ok) {
+              return resp.json();
+            }
+          })
+          .then((data) => {
+            localStorage.setItem("token", data.token);
+            setStore({ isAuthenticate: true });
+          })
+          .catch((error) => console.error("[ERROR IN LOGIN]", error));
+      },
+      setToken: (token) => {
+        setStore({ token: token });
+      },
       syncTokenFromSessionStore: () => {
-        const token = sessionStorage.getItem("token");
-        console.log("Application just loaded, syncro local storage");
+        const token = localStorage.getItem("token");
         if (token && token != "" && token != undefined)
           setStore({ token: token });
       },
       logout: () => {
-        sessionStorage.removeItem("token");
+        localStorage.removeItem("token");
         console.log("Logout");
         setStore({ token: null });
       },
+      // REFRESH ## PENDING>>><<<
       //   getMyTasks = await (username, password) => {
       //  // retrieve token form localStorage
       //  const token = localStorage.getItem('jwt-token');
@@ -55,20 +82,20 @@ const getState = ({ getStore, getActions, setStore }) => {
       //  console.log("This is the data you requested", data);
       //  return data
     },
-    changeColor: (index, color) => {
-      //get the store
-      const store = getStore();
+    // changeColor: (index, color) => {
+    //   //get the store
+    //   const store = getStore();
 
-      //we have to loop the entire demo array to look for the respective index
-      //and change its color
-      const demo = store.demo.map((elm, i) => {
-        if (i === index) elm.background = color;
-        return elm;
-      });
+    //   //we have to loop the entire demo array to look for the respective index
+    //   //and change its color
+    //   const demo = store.demo.map((elm, i) => {
+    //     if (i === index) elm.background = color;
+    //     return elm;
+    //   });
 
-      //reset the global store
-      setStore({ demo: demo });
-    },
+    //   //reset the global store
+    //   setStore({ demo: demo });
+    // },
   };
 };
 export default getState;

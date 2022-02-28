@@ -52,15 +52,18 @@ def create_user():
     # create_access_token() function is used to actually generate the JWT.
 @api.route("/login", methods=["POST", "GET"])
 def login():
+    body = request.get_json()
+    if body is None:
+        return jsonify({"error": "Body is empty or null"}), 400
+    email = body['email']
+    password = body['password']
     # 1. read mail & pass
-    email = request.json.get("email", None)
-    password = request.json.get("password", None)
-    # password_hash = generate_password_hash(password) # deleted #
+    # email = request.json.get("email", None)
+    # password = request.json.get("password", None)
+    # password_hash = generate_password_hash(password) # removed #
     user = User.lookup(email)
-
     # 2 check error
     if user and check_password_hash(user.password, password):
-
     # 3. return token
         access_token = create_access_token(identity=email)
         return jsonify({'token' : access_token}), 200
