@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import { Context } from "../store/appContext";
-import { useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 
 export const Login = () => {
   const { store, actions } = useContext(Context);
@@ -22,17 +22,14 @@ export const Login = () => {
       email: email,
       password: password,
     };
-    console.log(opts);
-    fetch(
-      "https://3001-ertip4geek-swauthenticat-5z0owhl85dg.ws-eu34xl.gitpod.io/api/login",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(opts),
-      }
-    )
+    //duplicado
+    fetch(process.env.BACKEND_URL + `/api/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(opts),
+    })
       .then((r) => r.json())
       .then((token) => {
         if (token.token) {
@@ -76,6 +73,9 @@ export const Login = () => {
         <button onClick={onSubmitClick} type="submit">
           Login Now
         </button>
+        <p>
+          ¿Estas ya registrado? Registrate <Link to={"/signup"}>Aqui</Link>
+        </p>
       </form>
     </div>
   );
