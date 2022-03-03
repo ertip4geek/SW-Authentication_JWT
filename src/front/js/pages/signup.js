@@ -6,15 +6,18 @@ export const Signup = () => {
   const { store, actions } = useContext(Context);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [roles, setUser] = useState("");
+  const [roles, setRoles] = useState("");
+  const [user, setUser] = useState("");
+  let history = useHistory();
 
   useEffect(() => {
-    if (localStorage.getItem("token")) {
-      actions.setToken(localStorage.getItem("token"));
+    if (user) {
+      // if (localStorage.getItem("token")) {
+      //   actions.setToken(localStorage.getItem("token"));
       alert("Usuario creado");
       history.push("/");
     }
-  }, []);
+  }, [user]);
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
@@ -25,7 +28,13 @@ export const Signup = () => {
   };
 
   const handleRolesChange = (e) => {
-    setUser(e.target.value);
+    setRoles(e.target.value);
+  };
+
+  const handleSubmit = (e) => {
+    actions.signup(email, password, roles);
+    setUser(true);
+    console.log(e.target.value);
   };
 
   return (
@@ -33,16 +42,18 @@ export const Signup = () => {
       <div>
         <h2>Signup</h2>
         <form action="#">
-          <div>
+          <div className="mb-3">
             <input
+              className="form-control"
               type="text"
               placeholder="Email"
               onChange={handleEmailChange}
               value={email}
             />
           </div>
-          <div>
+          <div className="mb-3">
             <input
+              className="form-control"
               type="password"
               placeholder="Password"
               onChange={handlePasswordChange}
@@ -50,28 +61,24 @@ export const Signup = () => {
             />
           </div>
           <div>
-            {/* <input
-              type="dropdowm"
-              placeholder="Roles"
-              onChange={handlePasswordChange}
-              value={password}
-            /> */}
-            <div class="input-group mb-3">
-              <label class="input-group-text" for="inputGroupSelect01">
+            <div className="input-group mb-3">
+              <label className="input-group-text" htmlFor="inputGroupSelect01">
                 Roles
               </label>
               <select
-                class="form-select"
+                className="form-select"
                 id="inputGroupSelect01"
                 onChange={handleRolesChange}
               >
                 <option selected>Choose...</option>
                 <option value={roles}>User</option>
+                <option value={roles}>Seller</option>
               </select>
             </div>
           </div>
           <button
-            onClick={() => actions.signup(email, password, roles)}
+            // onClick={() => actions.signup(email, password, roles)}
+            onClick={handleSubmit}
             className="btn sub btn-block"
           >
             Sign Up

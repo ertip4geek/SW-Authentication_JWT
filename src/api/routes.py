@@ -37,7 +37,8 @@ def create_user():
     # user.create_user()
     try:
         user.create_user()
-    except exc.IntegrityError: 
+    except exc.IntegrityError as error: 
+        print(error)
         return {"error":"something went wrong"}, 409
 
     create_user = User.lookup(email)

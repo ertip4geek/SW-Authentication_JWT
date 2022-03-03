@@ -42,11 +42,14 @@ const getState = ({ getStore, getActions, setStore }) => {
           },
         })
           .then((resp) => {
+            console.log(resp);
             if (resp.ok) {
+              console.log(resp);
               return resp.json();
             }
           })
           .then((data) => {
+            console.log(data);
             localStorage.setItem("token", data.token);
             setStore({ isAuthenticate: true });
           })
